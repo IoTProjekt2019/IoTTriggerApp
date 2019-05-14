@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">IoT Trigger App</string>
+    <string name="off">OFF</string>
+    <string name="on">ON</string>
+    <string name="toggle">TOGGLE</string>
+</resources>
