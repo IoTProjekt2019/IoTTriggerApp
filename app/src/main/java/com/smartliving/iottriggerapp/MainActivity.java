@@ -15,15 +15,20 @@
 
 package com.smartliving.iottriggerapp;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.client.Callback;
@@ -40,17 +45,16 @@ import com.amazonaws.services.iot.AWSIotClient;
 import com.amazonaws.services.iot.model.AttachPrincipalPolicyRequest;
 import com.amazonaws.services.iot.model.CreateKeysAndCertificateRequest;
 import com.amazonaws.services.iot.model.CreateKeysAndCertificateResult;
+import com.google.android.material.navigation.NavigationView;
 
 import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.util.UUID;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String EXTRA_MESSAGE = "lel kp was hier stand";
     static final String LOG_TAG = MainActivity.class.getCanonicalName();
-
-    // --- Constants to modify per your configuration ---
 
     // IoT endpoint
     // AWS Iot CLI describe-endpoint call returns: XXXXXXXXXX.iot.<region>.amazonaws.com
@@ -75,14 +79,11 @@ public class MainActivity extends Activity {
     private static final String OFF = "off";
 
     EditText txtSubscribe;
-//    EditText txtTopic;
-//    EditText txtMessage;
 
     TextView tvLastMessage;
     TextView tvClientId;
     TextView tvStatus;
 
-    //TODO implement status check through MQTT
     String stateOnOff = ON;
 
     Button btnConnect;
@@ -201,7 +202,6 @@ public class MainActivity extends Activity {
         }
     }
 
-
     public void disconnectClick(final View view) {
         try {
             mqttManager.disconnect();
@@ -216,23 +216,55 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        txtSubscribe = findViewById(R.id.txtSubscribe);
-//        txtTopic = findViewById(R.id.txtTopic);
-//        txtMessage = findViewById(R.id.txtMessage);
-
-//        tvLastMessage = findViewById(R.id.tvLastMessage);
         tvClientId = findViewById(R.id.tvClientId);
         tvStatus = findViewById(R.id.tvStatus);
 
         btnConnect = findViewById(R.id.btnConnect);
         btnConnect.setEnabled(false);
 
+        initializeClient();
+        initializeAWSCognito();
+        connect();
+
+        askForState();
+
+//        Toolbar toolbar = findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
+////        FloatingActionButton fab = findViewById(R.id.fab);
+////        fab.setOnClickListener(new View.OnClickListener() {
+////            @Override
+////            public void onClick(View view) {
+////                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+////                        .setAction("Action", null).show();
+////            }
+////        });
+//        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+//        NavigationView navigationView = findViewById(R.id.nav_view);
+//        navigationView.setNavigationItemSelectedListener(this);
+//
+//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//        drawer.addDrawerListener(toggle);
+//        toggle.syncState();
+//        navigationView.setNavigationItemSelectedListener(this);
+//
+//        Log.i("tag","hallo hier am anfang");
+    }
+
+    private void askForState() {
+
+    }
+
+    private void initializeClient() {
         // MQTT client IDs are required to be unique per AWS IoT account.
         // This UUID is "practically unique" but does not _guarantee_
         // uniqueness.
         clientId = UUID.randomUUID().toString();
         tvClientId.setText(clientId);
 
+    }
+
+    private void initializeAWSCognito() {
         // Initialize the AWS Cognito credentials provider
         AWSMobileClient.getInstance().initialize(this, new Callback<UserStateDetails>() {
             @Override
@@ -245,7 +277,6 @@ public class MainActivity extends Activity {
                 Log.e(LOG_TAG, "onError: ", e);
             }
         });
-        connect();
     }
 
     void initIoTClient() {
@@ -360,5 +391,61 @@ public class MainActivity extends Activity {
                 }
             }).start();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.settings_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // Handle navigation view item clicks here.
+        Log.i("log","im listener");
+        int id = item.getItemId();
+        if (id == R.id.nav_home) {
+            // Handle the camera action
+            Log.i("log","hallo test ich bin hier hallo");
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+        } else if (id == R.id.nav_tools) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_send) {
+
+        } else if (id == R.id.nav_about) {
+
+        }
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }
