@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">IoT Trigger App</string>
-    <string name="off">OFF</string>
-    <string name="on">ON</string>
-    <string name="toggle">TOGGLE</string>
+    <string name="on"></string>
+    <string name="off"></string>
+
+    <string name="btnConnect">Connect to AWS</string>
+    <string name="connecting">Connecting...</string>
+    <string name="connected">Connected</string>
+
+    <string name="btnDisconnect">Disconnect</string>
+    <string name="btnToggle">Toggle</string>
+    <string name="textview">TextView</string>
 </resources>
